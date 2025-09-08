@@ -15,5 +15,15 @@ dist/
 .DS_Store
 rl_logs/
 .vscode/
-scripts/replays/*
-scripts/results/*
+
+
+# ignore these whole directories (their contents)
+scripts/replays/
+scripts/results/
+
+# ignore everything inside players/
+scripts/players/*
+
+# but do not ignore the players directory itself nor rename.py
+!scripts/players/
+!scripts/players/rename.py
