@@ -16,14 +16,15 @@ dist/
 rl_logs/
 .vscode/
 
+showdown_agent/scripts/client_secrets.json
 
 # ignore these whole directories (their contents)
-scripts/replays/
-scripts/results/
+showdown_agent/scripts/replays/
+showdown_agent/scripts/results/
 
 # ignore everything inside players/
-scripts/players/*
+showdown_agent/scripts/players/*
 
 # but do not ignore the players directory itself nor rename.py
-!scripts/players/
-!scripts/players/rename.py
+!showdown_agent/scripts/players/
+!showdown_agent/scripts/players/rename.py
