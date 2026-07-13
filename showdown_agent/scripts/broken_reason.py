@@ -15,7 +15,10 @@ def check_syntax(file_path: Path):
         ast.parse(source, filename=str(file_path))
         return None  # no syntax error
     except SyntaxError as e:
-        return f"SyntaxError: {e}"
+        line_info = (
+            f"Line {e.lineno}, Col {e.offset}: {e.text.strip()}" if e.text else ""
+        )
+        return f"SyntaxError: {e.msg} ({line_info})"
 
 
 def check_import(file_path: Path):
@@ -26,7 +29,8 @@ def check_import(file_path: Path):
         spec.loader.exec_module(module)  # may raise ImportError, etc.
         return None
     except Exception as e:
-        return f"{type(e).__name__}: {e}"
+        tb = traceback.format_exc()
+        return f"{type(e).__name__}: {e}\n{tb}"
 
 
 def load_module_from_file(path, name: str):

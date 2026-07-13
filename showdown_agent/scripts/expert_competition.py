@@ -447,23 +447,24 @@ def run_competition(
 ):
     competitors = [Competitor(i + 1, p.username, p) for i, p in enumerate(players)]
 
-    if len(competitors) < top_k:
-        print(f"⚠️ Not enough players found ({len(players)}) to start a tournament.")
-        return
+    # if len(competitors) < top_k:
+    #     print(f"⚠️ Not enough players found ({len(players)}) to start a tournament.")
+    #     return
 
-    bots_to_add = bots_to_add_for_clean_halving(len(competitors), top_k)
+    # bots_to_add = bots_to_add_for_clean_halving(len(competitors), top_k)
 
-    print(f"🤖 Adding {bots_to_add} bots to make a clean halving for {top_k} players")
+    # print(f"🤖 Adding {bots_to_add} bots to make a clean halving for {top_k} players")
 
-    bots = generate_bots(bots_to_add)
+    # bots = generate_bots(bots_to_add)
 
-    bot_competitors = [
-        Competitor(i + len(players) + 1, p.username, p) for i, p in enumerate(bots)
-    ]
+    # bot_competitors = [
+    #     Competitor(i + len(players) + 1, p.username, p) for i, p in enumerate(bots)
+    # ]
 
-    competitors += bot_competitors
+    # competitors += bot_competitors
 
-    top_k_competitors = run_swiss_phase(top_k, competitors)
+    # top_k_competitors = run_swiss_phase(top_k, competitors)
+    top_k_competitors = competitors
 
     print("\n🏁 Knockout Rounds:")
     winner = run_knockout_phase(top_k_competitors)
