@@ -15,6 +15,16 @@ dist/
 .DS_Store
 rl_logs/
 .vscode/
-pokeenv/scripts/replays/*
-pokeenv/scripts/results/*
 
+showdown_agent/scripts/client_secrets.json
+
+# ignore these whole directories (their contents)
+showdown_agent/scripts/replays/
+showdown_agent/scripts/results/
+
+# ignore everything inside players/
+showdown_agent/scripts/players/*
+
+# but do not ignore the players directory itself nor rename.py
+!showdown_agent/scripts/players/
+!showdown_agent/scripts/players/rename.py

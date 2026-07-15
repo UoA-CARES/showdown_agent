@@ -89,9 +89,13 @@ class Competitor:
 
 
 def gather_players():
-    player_folders = os.path.join(os.path.dirname(__file__), "players")
+    player_folders = os.path.join(os.path.dirname(__file__), "players", "completed")
 
     players = []
+
+    if not os.path.isdir(player_folders):
+        print(f"No completed players folder found at {player_folders}")
+        return players
 
     for module_name in os.listdir(player_folders):
         if module_name.endswith(".py"):
@@ -138,6 +142,62 @@ def rank_players_by_victories(results_dict, top_k=10):
     sorted_players = sorted(victory_scores.items(), key=lambda x: x[1], reverse=True)
 
     return sorted_players[:top_k]
+
+
+def install_poke_env_invalid_choice_recovery_patch():
+    """Monkey-patch poke_env to recover from known unhandled invalid-choice errors."""
+    if getattr(Player, "_cares_invalid_choice_patch_installed", False):
+        return
+
+    original_handler = Player._handle_battle_message
+
+    async def _patched_handle_battle_message(self, split_messages):
+        await original_handler(self, split_messages)
+
+        # Recover from poke-env's unhandled variant:
+        # "[Invalid choice] Can't move: <pokemon> can't Terastallize."
+        try:
+            battle = await self._get_battle(split_messages[0][0])
+        except Exception:
+            return
+
+        for split_message in split_messages[1:]:
+            if len(split_message) < 3 or split_message[1] != "error":
+                continue
+
+            error_text = split_message[2]
+            if error_text.startswith(
+                "[Invalid choice] Can't move: "
+            ) and error_text.endswith("can't Terastallize."):
+                self.logger.warning(
+                    "Applying fallback move after unhandled invalid choice: %s",
+                    error_text,
+                )
+
+                try:
+                    # Prefer a random legal move to keep the battle progressing.
+                    if hasattr(self, "choose_random_move"):
+                        fallback_choice = self.choose_random_move(battle)
+                        if asyncio.iscoroutine(fallback_choice):
+                            fallback_choice = await fallback_choice
+                        await self.ps_client.send_message(
+                            fallback_choice.message,
+                            battle.battle_tag,
+                        )
+                    else:
+                        await self._handle_battle_request(
+                            battle,
+                            maybe_default_order=True,
+                        )
+                except Exception:
+                    await self._handle_battle_request(
+                        battle,
+                        maybe_default_order=True,
+                    )
+                break
+
+    Player._handle_battle_message = _patched_handle_battle_message
+    Player._cares_invalid_choice_patch_installed = True
 
 
 async def run_battle(p1: Competitor, p2: Competitor) -> Tuple[Competitor, Competitor]:
@@ -471,6 +531,7 @@ def run_competition(
 
 
 def main():
+    install_poke_env_invalid_choice_recovery_patch()
 
     players = gather_players()
 

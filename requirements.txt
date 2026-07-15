@@ -1,5 +1,4 @@
 generic==1.1.4
-gymnasium==1.1.1
 numpy==2.2.5
 poke_env==0.10.0
 setuptools==59.6.0

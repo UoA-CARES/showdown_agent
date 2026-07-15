@@ -24,40 +24,17 @@ The full details of the assignment marking and expectations of the report are la
 # Setup
 The following instructions will enable you setup and run the basic random example agent and guide you on how to then create your own agent. These instructions will default to using a folder called "~/compsys726" but you may pull these package into any directory you desire. 
 
-The assignment has been developed for python3.10 and it is recommended you use a python virtual environment for working on this assignment. I recommend pyenv but you can use whichever you are fimilar with. 
+The assignment has been developed for `python3.12` and it is recommended you use a python virtual environment for working on this assignment. I recommend pyenv but you can use whichever you are fimilar with. 
 
-These instructions are written based on using Ubuntu 22.04 but will suffice for Windows/MAC users as well - but may require changes to certain commands. Any specific issues with following these instructions please message the teaching staff on Slack.
+These instructions are written based on using Ubuntu 24.04 but will suffice for Windows/MAC users as well - but may require changes to certain commands. Any specific issues with following these instructions please message the teaching staff on Slack.
 
-![Python](https://img.shields.io/badge/python-3.10-blue.svg)
+![Python](https://img.shields.io/badge/python-3.12-blue.svg)
 
 ## Base Folder
 Create the base folder for working with this assignment. If you wish to change which directory you set this assignment up in, please make sure to read the following instructions carefully to avoid putting things in the wrong place. 
 
 ```
 mkdir ~/compsys726
-```
-
-## Create Virtual Environment (PERSONAL MACHINE ONLY)
-It is strongly recommended that you use a virtual environment on your personal machine to better control the requirements used in this project.
-The instructions below will show you how to create a pyenv environment - you are free to use your preference of virtual environment though.
-If you are working on the University of Auckland lab machines ***skip this step*** as these configurations have already been tested. 
-
-```
-python3 -m venv ~/venv/pokemon
-```
-
-Remember to activate the virtual environment every time you open a new tab to load the right environment. 
-
-```
-source ~/venv/pokemon/bin/activate
-```
-
-**Pro tip** on Ubuntu you can put this inside of the **~/.bashrc** with an alias command to make this easier. 
-The example below will activate the environment through the **pkm** command. 
-
-```
-echo "alias pkm='source ~/venv/pokemon/bin/activate'" >> ~/.bashrc
-source ~/.bashrc
 ```
 
 ## Install Pokemon Showdown
@@ -77,6 +54,29 @@ If things break or don't connect then restarting the server can sometimes fix th
 
 ```
 node pokemon-showdown start --no-security
+```
+
+## (Optional) Create Virtual Environment (PERSONAL MACHINE ONLY)
+It is strongly recommended that you use a virtual environment on your `personal machine` (not the University of Auckland lab machines) to better control the requirements used in this project.
+The instructions below will show you how to create a pyenv environment - you are free to use your preference of virtual environment though.
+If you are working on the University of Auckland lab machines ***skip this step*** as these configurations will break the lab machines and you will not be able to run the assignment. 
+
+```
+python3 -m venv ~/venv/pokemon
+```
+
+Remember to activate the virtual environment every time you open a new tab to load the right environment. 
+
+```
+source ~/venv/pokemon/bin/activate
+```
+
+**Pro tip** on Ubuntu you can put this inside of the **~/.bashrc** with an alias command to make this easier. 
+The example below will activate the environment through the **pkm** command. 
+
+```
+echo "alias pkm='source ~/venv/pokemon/bin/activate'" >> ~/.bashrc
+source ~/.bashrc
 ```
 
 ## Clone the Repository
@@ -106,11 +106,11 @@ mv rename.py "your_upi_goes_here".py
 ```
 
 # Usage
-To run this package you can simply call **expert_main.py** - this will run your agent against the default generic bots and produce the head-to-head results. The initial example agent will choose random moves.
+Run **expert_main.py** with `--upi` to evaluate your agent.
 
 ```
-cd ~/compsys726/showdown_agent/scripts
-python expert_main.py
+cd ~/compsys726/showdown_agent/showdown_agent/scripts
+python expert_main.py --upi your_upi
 ```
 
 You should see the same output as below with your upi in place of "rename".
@@ -127,19 +127,43 @@ NO other file is to be edited - the automated competition system will only use y
 This is simply to enable automated competitions between your submissions.
 
 ## Pokemon Expert (upi.py)
-Your goal is to expand on the **choose_move(self, battle)** method and return the desired action to take. You are free to expand the class **CustomAgent** and add additional features/functions required to implement your agent. This is not best coding practice but it makes the lecturers lives easier for automating marking.
+Your goal is to expand on the **_choose_move(self, battle)** method and return the desired action to take. You are free to expand the class **CustomAgent** and add additional features/functions required to implement your agent. 
 
-Do NOT rename the CustomAgent class or change the function definition for **choose_move(self, battle)**. These are required for initialising and running the agents under the hood. Adding additional functions and parameters is fair game. 
+All coode must be contained within the **upi.py** file - no additional files will be used or extraced by the teaching team. This is not best coding practice but it makes the lecturers lives easier for automating marking.
+
+Do NOT rename the `CustomAgent` class or change the function definition for **_choose_move(self, battle)**. These are required for initialising and running the agents under the hood. Adding additional functions and parameters is fair game throughout the class itself. 
 
 The battle object contains all the information about the battle state for you to design your decision logic. 
 
 ```python
 class CustomAgent(Player):
-    def __init__(self, *args, **kwargs):
-        super().__init__(team=team, *args, **kwargs)
 
-    def choose_move(self, battle: Battle):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, team=team, **kwargs)
+
+    def chose_move(self, battle: AbstractBattle):
+        """
+        DO NOT EDIT THIS FUNCTION.
+        """
+        me = battle.active_pokemon
+        opp = battle.opponent_active_pokemon
+
+        if me is None or opp is None:
+            return self.choose_random_move(battle)
+
+        return self._choose_move(battle)
+
+    def _choose_move(self, battle: AbstractBattle):
+        """
+        DO EDIT THIS FUNCTION
+        """
         return self.choose_random_move(battle)
+
+    def teampreview(self, battle: AbstractBattle):
+        """
+        SET THE TEAM ORDER HERE
+        """
+        return "/team 1"
 ```
 
 The final piece of information you can manage is the Pokemon team itself. The default team starts with the a lonely Pickachu - you will want to expand your Pokemon to a team of six. A team can be created using the teambuilder in Pokemon Showdown (https://play.pokemonshowdown.com/teambuilder).
@@ -162,49 +186,53 @@ IVs: 0 Atk
 - Thunderbolt  
 """
 ```
+
 # Submission
 You will submit your agent code **upi.py** and **requirements.txt** through the instructions below to the given Google Drive. No other files will be utilised - the code needs to be self sufficient within **upi.py** and all additional package requirements must be captured in the **requirements.txt**. Failure to do this correctly may lead to a score of zero - test scripts are provided to make sure you have correctly set things up.
 
+## Step 0 - Remove All File and Output Logging
+Before submission, remove any code that writes logs, stats, or debug output to disk - e.g. writes data to a file. These are great for generating results for the report but are not allowed for submission - this is to ensure that the automated grading system can run your agent without any issues. **Any code that writes to disk will be automatically removed and may result in a score of zero**.
+
+Printing or logging to terminal is fine, but writing to disk is not allowed. This is to ensure that the automated grading system can run your agent without any issues. **Any code that writes to disk will be removed and may result in a score of zero.**
+
 ## Step 1 - Create requirements.txt
 You need to create a requirements.txt that contains all the python packages you are using for your expert agent.
-This can easily be generated by running 'pipreqs' in the **root directory** of the package.
+
+Please remove any packages that are not required for your agent to run - remove all references to packages that are not used in your agent in the imports - be a tidy programmer and only include the packages you are using.
+
+This can easily be generated by running `pipreqs` from the **root directory** of the package and saving the file to your player folder.
 
 ```
-pip3 install pipreqs
+pip install pipreqs
 cd ~/compsys726/showdown_agent
-python3 -m pipreqs.pipreqs --force
+python -m pipreqs.pipreqs showdown_agent/scripts/players --force --savepath showdown_agent/scripts/players/requirements.txt
 ```
 
-This will regenerate the **requirements.txt** file with your specific packages and their versions. This will enable your agent to operate as expected. 
+This will regenerate `showdown_agent/scripts/players/requirements.txt` with your package list.
 
-## Step 2 - Validate Files
-To validate that the requirements and everything is correct - we will create an empty virtual environment to test the installation of your agent. 
+If your requirements file has the same package pinned more than once with different versions (for example `numpy==1.24.3` and `numpy==1.24.4`), submission sanity will fail it before install.
 
-```
-python3 -m venv ~/venv/pkm
-source ~/venv/pkm/bin/activate
-cd ~/compsys726/showdown_agent
-pip install -r requirements.txt
-python expert_main.py
+## Step 2 - Sanity Check Your Submission
+Before uploading, run the shared submission validator against your agent file and requirements file. It creates a temporary virtual environment, installs your requirements, and then tries to import your agent module - this will ensure that your agent is self sufficient and can be imported without any issues.
+
+```bash
+cd ~/compsys726/showdown_agent/showdown_agent/scripts
+python submission_sanity.py --agent-file players/your_upi.py --requirements-file players/requirements.txt
 ```
 
-If all works as expected then you are good to go, if there are missing modules or issues then update your requirements and try again. NOTE: delete the venv to make it fresh it again.
-
-```
-rm -r ~/venv/pkm
-```
+If this fails, fix the dependency or import issue before submitting - **any submissions that fail the sanity check may be scored zero**.
 
 ## Step 3 - Upload Files to Google Drive
-Following this link: https://drive.google.com/drive/folders/1CLYDBXYuLHfna8Uj4lCH4H4y6uBmJekD?usp=sharing
+Following this link: https://drive.google.com/drive/folders/18RaALVXr941xr-XRw2IG2R70Kz6y7msK?usp=sharing
 
-Create a folder using your ***upi*** as the name. Copy your **requirements.txt** and **upi.py** files into the folder. These files can be updated as many times as you wish until the final deadline. 
+Create a folder using your ***upi*** as the name. Copy your **requirements.txt** and **upi.py** files into the folder. These files can be updated as many times as you wish until the final deadline - time of submission/updates will be taken as the last modified time of the files in the folder. 
 
 # Evaluation
 The agents will be evaluated against the various generic bots designed to be at "easy" to "hard" difficulty levels. The marks will be determined based on the evaluations run offline by the teaching team. Your agent will have a chance to score bonus marks based on its placement in the class competition described below.
 
 ## Bot Tournament
-Your agent will be evaluated based on its performance against the generic bots through **expert_main.py**. 
-You can run this locally using the instructions above to get an indication of your mark and metrics for your report. 
+Your agent will be evaluated based on its performance against the generic bots through **expert_main.py**.
+You can run this locally using the instructions above with your own `--upi` to get an indication of your mark and metrics for your report.
 The **final mark** used for your grade will be scored from running the code locally by the teaching staff. 
 The breakdown of marks is shown below based on your position in the tournmanet with the bots.
 
@@ -227,6 +255,9 @@ The breakdown of marks is shown below based on your position in the tournmanet w
 | 15            | 1.0%            |
 | 16            | 0.0%            |
 
+## Disclaimers
+The teaching team will do their best to ensure that the automated grading system can run your agent without any issues - issues that arise from the automated grading system will be the responsibility of the teaching team and will be resolved with the student where required. However, it is your responsibility to ensure that your agent is self sufficient and can run without any issues through the sanity check provided above.
+
 ## Class Competition
 The class competition will assess the quality of your expert agent against the the rest of the class. This is also a chance to earn ***bonus*** marks by potentially placing the top 16 winners overall.
 
@@ -247,3 +278,5 @@ Simple Uber bots will be added to the tournamnet to provide equal numbers for an
 ### Knockout Phase
 The final phase will place the top 16 in head to head B03 matches seeding the top placing teams against the lowest seeding teams until the grand finals.
 
+### Disclaimers
+The teaching team will not be responsible for any issues with your agent that may arise from the **automated class competition**. The competition is a fun way to earn bonus marks and is not part of the main assignment marking. The teaching team will do their best to ensure that the automated grading system can run your agent without any issues in advance - but any issues arising during the compeitition will simply be a part of the competition.
